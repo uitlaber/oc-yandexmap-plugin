@@ -19,7 +19,7 @@ class Map extends ComponentBase
             'geocode' => [
                 'title'       => 'Адрес',
                 'description' => 'Адрес',
-                'default'     => 'Астана',
+                'default'     => '',
                 'type'        => 'string',
             ],
             'width' => [
@@ -52,10 +52,30 @@ class Map extends ComponentBase
                 'default'     => '9',
                 'type'        => 'string',
             ],
+            'field'=>[
+                'title'       => 'Имя скрытого инпута',
+                'description' => 'Скрыты инпут',
+                'default'     => 'location',
+                'type'        => 'string',
+            ],
+
+            'options'=>[
+                'title'       => 'Дополнительные опции',
+                'description' => 'Пример:  controls: [\'zoomControl\', \'fullscreenControl\']',
+                'default'     => "",
+                'type'        => 'string',
+            ],
 
             'load_script' => [
                 'title'       => 'Добавить скрипт яндекса',
                 'description' => 'Масштаб карты',
+                'default'     => '1',
+                'type'        => 'checkbox',
+            ],
+
+            'search_input' => [
+                'title'       => 'Показать поиск по карте',
+                'description' => 'Добавляет форму поиска на карту',
                 'default'     => '1',
                 'type'        => 'checkbox',
             ],
@@ -66,8 +86,6 @@ class Map extends ComponentBase
     public function onRun()
     {
         $this->addCss('assets/css/map.css');
-
-
 
 
     }
