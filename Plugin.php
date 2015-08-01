@@ -17,9 +17,9 @@ class Plugin extends PluginBase
     {
         return [
             'name'        => 'YandexMap',
-            'description' => 'No description provided yet...',
+            'description' => 'Yandex Map component',
             'author'      => 'uit',
-            'icon'        => 'icon-leaf'
+            'icon'        => 'icon-map-marker'
         ];
     }
 
