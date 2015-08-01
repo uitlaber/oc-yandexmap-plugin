@@ -1,1 +1,1 @@
-# plugin_yandex
+# Yandex map October Cms plugin
