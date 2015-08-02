@@ -8,8 +8,8 @@ class Map extends ComponentBase
     public function componentDetails()
     {
         return [
-            'name'        => 'Map Component',
-            'description' => 'No description provided yet...'
+            'name' => 'uit.yandexmap::lang.component.name',
+            'description' => 'uit.yandexmap::lang.component.description',
         ];
     }
 
@@ -17,67 +17,67 @@ class Map extends ComponentBase
     {
         return [
             'geocode' => [
-                'title'       => 'Адрес',
-                'description' => 'Адрес',
-                'default'     => '',
-                'type'        => 'string',
+                'title' => 'uit.yandexmap::lang.component.addres',
+                'description' => 'uit.yandexmap::lang.component.addres_description',
+                'default' => '',
+                'type' => 'string',
             ],
             'width' => [
-                'title'       => 'Ширина карты',
-                'description' => 'Ширина карты',
-                'default'     => '300px',
-                'type'        => 'string',
+                'title' => 'uit.yandexmap::lang.component.width',
+                'description' => 'uit.yandexmap::lang.component.width_description',
+                'default' => '300px',
+                'type' => 'string',
             ],
             'height' => [
-                'title'       => 'Высота карты',
-                'description' => 'Высота карты',
-                'default'     => '300px',
-                'type'        => 'string',
+                'title' => 'uit.yandexmap::lang.component.height',
+                'description' => 'uit.yandexmap::lang.component.height_description',
+                'default' => '300px',
+                'type' => 'string',
             ],
             'lat_long' => [
-                'title'       => 'Широта,долгота',
-                'description' => 'Широта,долгота не объязательно',
-                'default'     => '',
-                'type'        => 'string',
+                'title' => 'uit.yandexmap::lang.component.lat_long',
+                'description' => 'uit.yandexmap::lang.component.lat_long_description',
+                'default' => '',
+                'type' => 'string',
             ],
             'info' => [
-                'title'       => 'Текст',
-                'description' => 'Текст на карте',
-                'default'     => '',
-                'type'        => 'string',
+                'title' => 'uit.yandexmap::lang.component.info',
+                'description' => 'uit.yandexmap::lang.component.info_description',
+                'default' => '',
+                'type' => 'string',
             ],
             'zoom' => [
-                'title'       => 'Масштаб',
-                'description' => 'Масштаб карты',
-                'default'     => '9',
-                'type'        => 'string',
+                'title' => 'uit.yandexmap::lang.component.scale',
+                'description' => 'uit.yandexmap::lang.component.scale_description',
+                'default' => '9',
+                'type' => 'string',
             ],
-            'field'=>[
-                'title'       => 'Имя скрытого инпута',
-                'description' => 'Скрыты инпут',
-                'default'     => 'location',
-                'type'        => 'string',
+            'field' => [
+                'title' => 'uit.yandexmap::lang.component.input_name',
+                'description' => 'uit.yandexmap::lang.component.input_name_description',
+                'default' => 'location',
+                'type' => 'string',
             ],
 
-            'options'=>[
-                'title'       => 'Дополнительные опции',
-                'description' => 'Пример:  controls: [\'zoomControl\', \'fullscreenControl\']',
-                'default'     => "",
-                'type'        => 'string',
+            'options' => [
+                'title' => 'uit.yandexmap::lang.component.options',
+                'description' => 'uit.yandexmap::lang.component.options_description',
+                'default' => "",
+                'type' => 'string',
             ],
 
             'load_script' => [
-                'title'       => 'Добавить скрипт яндекса',
-                'description' => 'Масштаб карты',
-                'default'     => '1',
-                'type'        => 'checkbox',
+                'title' => 'uit.yandexmap::lang.component.load_js',
+                'description' => 'uit.yandexmap::lang.component.load_js_description',
+                'default' => '1',
+                'type' => 'checkbox',
             ],
 
             'search_input' => [
-                'title'       => 'Показать поиск по карте',
-                'description' => 'Добавляет форму поиска на карту',
-                'default'     => '1',
-                'type'        => 'checkbox',
+                'title' => 'uit.yandexmap::lang.component.search_input',
+                'description' => 'uit.yandexmap::lang.component.search_input_description',
+                'default' => '1',
+                'type' => 'checkbox',
             ],
 
         ];
@@ -85,9 +85,8 @@ class Map extends ComponentBase
 
     public function onRun()
     {
+        $this->addJs('assets/js/map.js');
         $this->addCss('assets/css/map.css');
-
-
     }
 
 }

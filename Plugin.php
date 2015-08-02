@@ -16,8 +16,8 @@ class Plugin extends PluginBase
     public function pluginDetails()
     {
         return [
-            'name'        => 'YandexMap',
-            'description' => 'No description provided yet...',
+            'name'        => 'uit.yandexmap::lang.plugin.name',
+            'description' => 'uit.yandexmap::lang.plugin.description',
             'author'      => 'uit',
             'icon'        => 'icon-map-marker'
         ];
