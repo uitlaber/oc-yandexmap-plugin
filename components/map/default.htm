@@ -54,23 +54,56 @@
             });
 
             {% if lat_long %}
-                myPlacemark_{{ component_id  }} = createPlacemark([{{ lat_long }}]);
+                myPlacemark_{{ component_id  }} = createPlacemark([{{ lat_long }}],true);
                 myMap_{{ component_id  }}.geoObjects.add(myPlacemark_{{ component_id }});
             {%  endif %}
 
-            {% if search_input %}
+        
+
+                {% if geocode_map %}
+                    // Поиск координат центра
+                    ymaps.geocode('{{ geocode_map }}', {
+                        results: 1
+                    }).then(function (res) {
+
+                        var firstGeoObject = res.geoObjects.get(0),
+                            coords = firstGeoObject.geometry.getCoordinates(),
+                            bounds = firstGeoObject.properties.get('boundedBy');
+
+                       if (myPlacemark_{{ component_id }}) {
+                        myPlacemark_{{ component_id  }}.geometry.setCoordinates(coords);
+                        document.getElementById('{{ inputFieldId  }}').value = coords[0]+','+coords[1];
+                        }
+                        // Если нет – создаем.
+                        else {
+                            myPlacemark_{{ component_id  }} = createPlacemark(coords,false);
+                            myMap_{{ component_id  }}.geoObjects.add(myPlacemark_{{ component_id  }});
+                        }
+                       
+                       // Масштабируем карту на область видимости геообъекта.
+                        myMap_{{ component_id  }}.setBounds(bounds, {
+                            // Проверяем наличие тайлов на данном масштабе.
+                            checkZoomRange: true
+
+                        });
+
+                    });
+                    {% endif %}
+              
+
+              {% if search_input %}
 
                 // Слушаем клик на карте
                 myMap_{{ component_id  }}.events.add('click', function (e) {
                     var coords = e.get('coords');
                     // Если метка уже создана – просто передвигаем ее
-                    if (myPlacemark_{{ component_id  }}) {
+                    if (myPlacemark_{{ component_id }}) {
                         myPlacemark_{{ component_id  }}.geometry.setCoordinates(coords);
                         document.getElementById('{{ inputFieldId  }}').value = coords[0]+','+coords[1];
                     }
                     // Если нет – создаем.
                     else {
-                        myPlacemark_{{ component_id  }} = createPlacemark(coords);
+                        myPlacemark_{{ component_id  }} = createPlacemark(coords,true);
                         myMap_{{ component_id  }}.geoObjects.add(myPlacemark_{{ component_id  }});
                     }
                     getAddress(coords);
@@ -82,33 +115,7 @@
                     });
                 });
 
-            {% endif %}
-
-                {% if geocode_map %}
-                    // Поиск координат центра
-                    ymaps.geocode('{{ geocode_map }}', {
-                        results: 1
-                    }).then(function (res) {
-
-                        var firstGeoObject = res.geoObjects.get(0),
-                            coords = firstGeoObject.geometry.getCoordinates(),
-
-                        if (myPlacemark_{{ component_id }}) {
-                            myPlacemark_{{ component_id  }}.geometry.setCoordinates(coords);
-                        }
-                        else{
-                            myPlacemark_{{ component_id  }} = createPlacemark(coords);
-
-                            myMap_{{ component_id  }}.geoObjects.add(myPlacemark_{{ component_id  }});
-
-                        }
-                        // Добавляем первый найденный геообъект на карту.
-                        myMap_{{ component_id }}.geoObjects.add(firstGeoObject);
-
-
-                    });
-                    {% endif %}
-                }
+           
 
                 document.getElementById('{{ inputTextId }}').onkeyup = function(e) {
 
@@ -141,7 +148,7 @@
                             myPlacemark_{{ component_id  }}.geometry.setCoordinates(coords);
                         }
                         else{
-                            myPlacemark_{{ component_id  }} = createPlacemark(coords);
+                            myPlacemark_{{ component_id  }} = createPlacemark(coords,true);
 
                             myMap_{{ component_id  }}.geoObjects.add(myPlacemark_{{ component_id  }});
 
@@ -174,6 +181,9 @@
                         document.getElementById('{{ inputFieldId  }}').value = coords[0]+','+coords[1];
                     });
                 }
+
+                 {% endif %}
+                   }
     </script>
 
 

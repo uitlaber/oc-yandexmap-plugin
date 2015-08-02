@@ -13,12 +13,12 @@ function showLocationList( res, wrapper ){
     }
 }
 
-function createPlacemark(coords) {
+function createPlacemark(coords,draggable) {
     return new ymaps.Placemark(coords, {
         iconContent: ''
     }, {
         preset: 'islands#violetStretchyIcon',
-        draggable: true
+        draggable: draggable
     });
 }
 
