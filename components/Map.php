@@ -37,7 +37,7 @@ class Map extends ComponentBase
             'lat_long' => [
                 'title'       => 'Широта,долгота',
                 'description' => 'Широта,долгота не объязательно',
-                'default'     => '55.753994, 37.622093',
+                'default'     => '',
                 'type'        => 'string',
             ],
             'info' => [

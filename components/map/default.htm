@@ -14,194 +14,252 @@
 
 <div class="yandex-map-plugin">
 
-    {% if search_input %}
-    <input type="text" id="{{ inputTextId }}" class="form-control " onkeyup="showAddress_{{ component_id }}(this.value); return false;" value=""/>
-
-    <input type="hidden" name="{{ inputField  }}">
-
-
-    <ul id="{{ addres_list  }}" class="addres_list">
-    </ul>
-    {% endif %}
-
-
-
-    <div id="{{ component_id }}" class="uit_yandex_map" style="width: {{ map_width  }}; height: {{ map_height }}">
-    </div>
     {% if load_script %}
     <script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU" type="text/javascript"></script>
     {% endif %}
-    <script>
-        ymaps.ready(init_{{ component_id  }});
-        var myMap_{{ component_id  }};
-        var myPlacemark_{{ component_id  }};
-        function init_{{ component_id  }}() {
 
+    {% if search_input %}
+
+    <div class="input-group">
+        <span class="input-group-addon"><i class="glyphicon glyphicon-map-marker" aria-hidden="true"></i></span>
+        <input type="text" id="{{ inputTextId }}" class="form-control " onkeyup="showAddress_{{ component_id }}(this.value); return false;"/>
+    </div>
+
+    <!-- Инпут для форм -->
+    <input type="hidden" name="{{ inputField  }}" value="{{ lat_long }}">
+
+    <!-- Список результатов -->
+    <ul id="{{ addres_list  }}" class="addres_list"></ul>
+
+    {% endif %}
+
+    <div id="{{ component_id }}" class="uit_yandex_map" style="width:{{ map_width  }}; height:{{ map_height }}"></div>
+
+
+    <script>
+        ymaps.ready(init_{{ component_id }});
+
+        var myMap_{{ component_id  }},
+        myPlacemark_{{ component_id }};
+
+        function init_{{ component_id  }}() {
 
             myMap_{{ component_id  }} = new ymaps.Map('{{ component_id  }}', {
             {% if  lat_long %}
                 center: [{{lat_long }}],
             {% endif %}
-             zoom: {{ map_zoom }}
+            zoom: {{ map_zoom }}
             {% if options %}
-                ,{{ options|raw }}
+            ,{{ options|raw }}
+                {% endif %}
+
+            });
+
+            {% if lat_long %}
+                myPlacemark_{{ component_id  }} = createPlacemark([{{ lat_long }}]);
+            myMap_{{ component_id  }}.geoObjects.add(myPlacemark_{{ component_id }});
             {%  endif %}
 
-        });
+            {% if search_input %}
 
-        {% if search_input %}
+                $('#{{ addres_list  }}').on('click','li', function () {
+                    $('#'+'{{ inputTextId }}').val($(this).text());
+                    selectAddress__{{ component_id }}($(this).text());
+                    $('#{{ addres_list  }}').html('');
+                })
 
-
-            $('#{{ addres_list  }}').on('click','li', function () {
-                $('#'+'{{ inputTextId }}').val($(this).text());
-                selectAddress__{{ component_id }}($(this).text());
-                $('#{{ addres_list  }}').html('');
-            })
-
-
-        // Слушаем клик на карте
-        myMap_{{ component_id  }}.events.add('click', function (e) {
-            var coords = e.get('coords');
-            // Если метка уже создана – просто передвигаем ее
-            if (myPlacemark_{{ component_id  }}) {
-                myPlacemark_{{ component_id  }}.geometry.setCoordinates(coords);
-                $('input[name="{{ inputField  }}"]').val(coords[0]+','+coords[1]);
-            }
-            // Если нет – создаем.
-            else {
-                myPlacemark_{{ component_id  }} = createPlacemark(coords);
-                myMap_{{ component_id  }}.geoObjects.add(myPlacemark_{{ component_id  }});
-                // Слушаем событие окончания перетаскивания на метке.
-                myPlacemark_{{ component_id  }}.events.add('dragend', function () {
-                    getAddress__{{ component_id }}(myPlacemark_{{ component_id  }}.geometry.getCoordinates());
-
-                });
-            }
-            getAddress__{{ component_id }}(coords);
-        });
-        {% endif %}
-        {% if geocode_map %}
-            // Поиск координат центра
-            ymaps.geocode('{{ geocode_map }}', {
-            results: 1
-        }).then(function (res) {
-            // Выбираем первый результат геокодирования.
-            var firstGeoObject = res.geoObjects.get(0),
-            // Координаты геообъекта.
-                    coords = firstGeoObject.geometry.getCoordinates(),
-            // Область видимости геообъекта.
-                    bounds = firstGeoObject.properties.get('boundedBy');
-            // Добавляем первый найденный геообъект на карту.
-            myMap_{{ component_id  }}.geoObjects.add(firstGeoObject);
-            // Масштабируем карту на область видимости геообъекта.
-            myMap_{{ component_id  }}.setBounds(bounds, {
-                // Проверяем наличие тайлов на данном масштабе.
-                checkZoomRange: true
-            });
-        });
-            {% endif %}
-        }
-
-
-        {% if search_input %}
-        // Создание метки
-        function createPlacemark(coords) {
-            return new ymaps.Placemark(coords, {
-                iconContent: ''
-            }, {
-                preset: 'islands#violetStretchyIcon',
-                draggable: true
-            });
-        }
-        function showAddress_{{ component_id }} (value) {
-            // Поиск координат центра Нижнего Новгорода.
-            ymaps.geocode(value, {
-                results: 10
-            }).then(function (res) {
-                $('#{{ addres_list  }}').html('');
-                // Выбираем первый результат геокодирования.
-                var firstGeoObject = res.geoObjects.get(0),
-                        items = [];
-                // Координаты геообъекта.
-                coords = firstGeoObject.geometry.getCoordinates(),
-                    // Область видимости геообъекта.
-                        bounds = firstGeoObject.properties.get('boundedBy');
-                // console.log(firstGeoObject);
+                // Слушаем клик на карте
+                myMap_{{ component_id  }}.events.add('click', function (e) {
+                var coords = e.get('coords');
+                // Если метка уже создана – просто передвигаем ее
                 if (myPlacemark_{{ component_id  }}) {
                     myPlacemark_{{ component_id  }}.geometry.setCoordinates(coords);
+                    $('input[name="{{ inputField  }}"]').val(coords[0]+','+coords[1]);
                 }
-                else{
+                // Если нет – создаем.
+                else {
                     myPlacemark_{{ component_id  }} = createPlacemark(coords);
                     myMap_{{ component_id  }}.geoObjects.add(myPlacemark_{{ component_id  }});
-                    // Слушаем событие окончания перетаскивания на метке.
-                    myPlacemark_{{ component_id  }}.events.add('dragend', function () {
-                        getAddress__{{ component_id }}(myPlacemark_{{ component_id  }}.geometry.getCoordinates());
+
+
+                }
+                getAddress__{{ component_id }}(coords);
+            });
+
+
+             // Слушаем событие окончания перетаскивания на метке.
+            myPlacemark_{{ component_id  }}.events.add('dragend', function (e) {
+
+                console.log(e);
+                    var coords = myPlacemark_{{ component_id  }}.geometry.getCoordinates()
+                    getAddress__{{ component_id }}( coords );
+                    $('input[name="{{ inputField }}"]').val(coords[0]+','+coords[1]);
+            });
+                {% endif %}
+
+                {% if geocode_map %}
+                    // Поиск координат центра
+                    ymaps.geocode('{{ geocode_map }}', {
+                        results: 1
+                    }).then(function (res) {
+
+                        // Выбираем первый результат геокодирования.
+                        var firstGeoObject = res.geoObjects.get(0),
+
+                        // Координаты геообъекта.
+                            coords = firstGeoObject.geometry.getCoordinates(),
+
+                        // Область видимости геообъекта.
+                              bounds = firstGeoObject.properties.get('boundedBy');
+
+                        // Добавляем первый найденный геообъект на карту.
+                        myMap_{{ component_id }}.geoObjects.add(firstGeoObject);
+
+                        // Масштабируем карту на область видимости геообъекта.
+                        myMap_{{ component_id }}.setBounds(bounds, {
+
+                            // Проверяем наличие тайлов на данном масштабе.
+                            checkZoomRange: true
+
+                        });
                     });
+                    {% endif %}
                 }
-                res.geoObjects.each(function (item) { items.push(item); });
-                for (var i = 0; i < items.length; i++) {
-                    $('#{{ addres_list }}').append('<li>'+items[i].properties.get('text')+'</li>');
-                }
-                // Добавляем первый найденный геообъект на карту.
-                myMap_{{ component_id  }}.geoObjects.add(myPlacemark_{{ component_id  }});
-//            // Масштабируем карту на область видимости геообъекта.
-                myMap_{{ component_id  }}.setBounds(bounds, {
-                    // Проверяем наличие тайлов на данном масштабе.
-                    checkZoomRange: true
-                });
-                console.log(coords);
-                $('input[name="{{ inputField  }}"]').val(coords[0]+','+coords[1])
-            });
 
 
-        }
-        function selectAddress__{{ component_id }} (value) {
-            // Поиск координат центра Нижнего Новгорода.
-            ymaps.geocode(value, {
-                results: 1
-            }).then(function (res) {
-                $('#{{ addres_list  }}').html('');
-                // Выбираем первый результат геокодирования.
-                var firstGeoObject = res.geoObjects.get(0),
-                // Координаты геообъекта.
-                        coords = firstGeoObject.geometry.getCoordinates(),
-                // Область видимости геообъекта.
-                        bounds = firstGeoObject.properties.get('boundedBy');
-                // console.log(firstGeoObject);
-                if (myPlacemark_{{ component_id  }}) {
-                    myPlacemark_{{ component_id  }}.geometry.setCoordinates(coords);
-                }
-                else{
-                    myPlacemark_{{ component_id  }} = createPlacemark(coords);
-                    myMap_{{ component_id  }}.geoObjects.add(myPlacemark_{{ component_id  }});
-                    // Слушаем событие окончания перетаскивания на метке.
-                    myPlacemark_{{ component_id  }}.events.add('dragend', function () {
-                        getAddress__{{ component_id }}(myPlacemark_{{ component_id  }}.geometry.getCoordinates());
+                {% if search_input %}
+
+                    // Создание метки
+                    function createPlacemark(coords) {
+                        return new ymaps.Placemark(coords, {
+                            iconContent: ''
+                        }, {
+                            preset: 'islands#violetStretchyIcon',
+                            draggable: true
+                        });
+                    }
+
+                    function showAddress_{{ component_id }} (value) {
+                    // Поиск координат центра Нижнего Новгорода.
+                    ymaps.geocode(value, {
+                        results: 10
+                    }).then(function (res) {
+                        $('#{{ addres_list  }}').html('');
+
+                        // Выбираем первый результат геокодирования.
+                        var firstGeoObject = res.geoObjects.get(0),
+
+                            items = [],
+
+                            // Координаты геообъекта.
+                            coords = firstGeoObject.geometry.getCoordinates(),
+
+                            // Область видимости геообъекта.
+                            bounds = firstGeoObject.properties.get('boundedBy');
+
+                        // console.log(firstGeoObject);
+                        if (myPlacemark_{{ component_id }}) {
+
+                            myPlacemark_{{ component_id }}.geometry.setCoordinates(coords);
+
+                        }
+                        else{
+
+                            myPlacemark_{{ component_id }} = createPlacemark(coords);
+
+                            myMap_{{ component_id  }}.geoObjects.add(myPlacemark_{{ component_id  }});
+
+                        }
+
+
+
+
+                        res.geoObjects.each(function (item) {
+                            items.push(item);
+                        });
+
+                        for (var i = 0; i < items.length; i++) {
+                            $('#{{ addres_list }}').append('<li>'+items[i].properties.get('text')+'</li>');
+                        }
+
+                        // Добавляем первый найденный геообъект на карту.
+                        myMap_{{ component_id  }}.geoObjects.add(myPlacemark_{{ component_id  }});
+
+                        // Масштабируем карту на область видимости геообъекта.
+                        myMap_{{ component_id  }}.setBounds(bounds, {
+
+                            // Проверяем наличие тайлов на данном масштабе.
+                            checkZoomRange: true
+
+                        });
+
+                        $('input[name="{{ inputField  }}"]').val(coords[0]+','+coords[1])
+
                     });
+
+
                 }
-                // Добавляем первый найденный геообъект на карту.
-                myMap_{{ component_id  }}.geoObjects.add(myPlacemark_{{ component_id  }});
-//            // Масштабируем карту на область видимости геообъекта.
-                myMap_{{ component_id  }}.setBounds(bounds, {
-                    // Проверяем наличие тайлов на данном масштабе.
-                    checkZoomRange: true
-                });
+                    function selectAddress__{{ component_id }} (value) {
+                        // Поиск координат центра Нижнего Новгорода.
+                        ymaps.geocode(value, {
+                            results: 1
+                        }).then(function (res) {
+                            $('#{{ addres_list  }}').html('');
+                            // Выбираем первый результат геокодирования.
+                            var firstGeoObject = res.geoObjects.get(0),
+                            // Координаты геообъекта.
+                                    coords = firstGeoObject.geometry.getCoordinates(),
+                            // Область видимости геообъекта.
+                                    bounds = firstGeoObject.properties.get('boundedBy');
+                            // console.log(firstGeoObject);
+                            if (myPlacemark_{{ component_id  }}) {
 
-                $('input[name="{{ inputField  }}"]').val(coords[0]+','+coords[1]);
-            });
+                                myPlacemark_{{ component_id  }}.geometry.setCoordinates(coords);
+
+                            }
+                            else{
+                                myPlacemark_{{ component_id  }} = createPlacemark(coords);
+
+                                myMap_{{ component_id  }}.geoObjects.add(myPlacemark_{{ component_id  }});
+
+                                // Слушаем событие окончания перетаскивания на метке.
+                                myPlacemark_{{ component_id  }}.events.add('dragend', function () {
+
+                                    getAddress__{{ component_id }}(myPlacemark_{{ component_id  }}.geometry.getCoordinates());
+
+                                });
+                            }
+                            // Добавляем первый найденный геообъект на карту.
+                            myMap_{{ component_id  }}.geoObjects.add(myPlacemark_{{ component_id  }});
+
+                            // Масштабируем карту на область видимости геообъекта.
+                            myMap_{{ component_id  }}.setBounds(bounds, {
+
+                                // Проверяем наличие тайлов на данном масштабе.
+                                checkZoomRange: true
+
+                            });
+
+                            $('input[name="{{ inputField  }}"]').val(coords[0]+','+coords[1]);
+                        });
 
 
-        }
-        // Определяем адрес по координатам (обратное геокодирование)
-        function getAddress__{{ component_id }}(coords) {
-            myPlacemark_{{ component_id  }}.properties.set('iconContent', '');
-            ymaps.geocode(coords).then(function (res) {
-                var firstGeoObject = res.geoObjects.get(0);
-                $('#'+'{{ inputTextId }}').val(firstGeoObject.properties.get('text'));
-                $('input[name="{{ inputField  }}"]').val(coords[0]+','+coords[1]);
-            });
-        }
+                    }
+                    // Определяем адрес по координатам (обратное геокодирование)
+                    function getAddress__{{ component_id }}(coords) {
 
-            {% endif  %}
+                        myPlacemark_{{ component_id  }}.properties.set('iconContent', '');
+
+                        ymaps.geocode(coords).then(function (res) {
+                            var firstGeoObject = res.geoObjects.get(0);
+                            $('#'+'{{ inputTextId }}').val(firstGeoObject.properties.get('text'));
+                            $('input[name="{{ inputField  }}"]').val(coords[0]+','+coords[1]);
+                        });
+                }
+
+                    {% endif  %}
     </script>
+
+
+
 </div>
